@@ -18,6 +18,7 @@ type Handlers struct {
 	Product     *handler.ProductHandler
 	Shop        *handler.ShopHandler
 	ShopProduct *handler.ShopProductHandler
+	Cart        *handler.CartHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -67,6 +68,14 @@ func New(handlers Handlers) http.Handler {
 	shopProduct.POST("", middleware.Auth(entity.RoleAdmin), handlers.ShopProduct.PostShopProduct)
 	shopProduct.GET("/:product_id", middleware.Auth(entity.RoleAdmin), handlers.ShopProduct.GetShopProductDetail)
 	shopProduct.PUT("/:product_id", middleware.Auth(entity.RoleAdmin), handlers.ShopProduct.PutShopProduct)
+
+	cart := router.Group("/cart")
+	cart.GET("", middleware.Auth(entity.RoleUser), handlers.Cart.GetCart)
+	cart.POST("", middleware.Auth(entity.RoleUser), handlers.Cart.AddItem)
+	cart.PATCH("/:id", middleware.Auth(entity.RoleUser), handlers.Cart.ChangeQty)
+	cart.DELETE("/:id", middleware.Auth(entity.RoleUser), handlers.Cart.DeleteItem)
+	cart.PATCH("/check/:id", middleware.Auth(entity.RoleUser), handlers.Cart.CheckItem)
+	cart.PUT("/check-all", middleware.Auth(entity.RoleUser), handlers.Cart.CheckAllItem)
 
 	return router
 }
