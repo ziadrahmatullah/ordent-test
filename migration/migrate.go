@@ -10,7 +10,8 @@ func Migrate(db *gorm.DB) {
 	p := &entity.Profile{}
 	fp := &entity.ForgotPasswordToken{}
 	c := &entity.Cart{}
+	a := &entity.Address{}
 
-	_ = db.Migrator().DropTable(u, p, fp, c)
-	_ = db.AutoMigrate(u, p, fp, c)
+	_ = db.Migrator().DropTable(u, p, fp, c, a)
+	_ = db.AutoMigrate(u, p, fp, c, a)
 }

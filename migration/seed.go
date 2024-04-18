@@ -29,10 +29,46 @@ func Seed(db *gorm.DB) {
 		{UserId: 3},
 		{UserId: 4},
 	}
+	addresses := []*entity.Address{
+		{
+			Name:       "Alice",
+			StreetName: "Jalan Mega Kuningan Barat",
+			PostalCode: "12950",
+			Phone:      "08772348585",
+			Detail:     "",
+			IsDefault:  false,
+			ProfileId:  1,
+			Province:   "Jawa Barat",
+			City:       "Bandung",
+		},
+		{
+			Name:       "Alice",
+			StreetName: "Jalan Cihampelas No 160",
+			PostalCode: "12950",
+			Phone:      "08772348585",
+			Detail:     "",
+			IsDefault:  false,
+			ProfileId:  1,
+			Province:   "Jawa Barat",
+			City:       "Kuningan",
+		},
+		{
+			Name:       "Alice",
+			StreetName: "Jalan Dharmahusada 144",
+			PostalCode: "60285",
+			Phone:      "08772348585",
+			Detail:     "",
+			IsDefault:  true,
+			ProfileId:  1,
+			Province:   "Jawa Barat",
+			City:       "Cirebon",
+		},
+	}
 
 	db.Create(users)
 	db.Create(profiles)
 	db.Create(carts)
+	db.Create(addresses)
 
 }
 
