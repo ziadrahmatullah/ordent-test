@@ -16,7 +16,24 @@ func Seed(db *gorm.DB) {
 		{Email: "daniel@example.com", Username: "daniel", Password: hashPassword("Daniel12345"), Role: entity.RoleAdmin, IsVerified: true},
 	}
 
+	profiles := []*entity.Profile{
+		generateProfile(1, "Alice"),
+		generateProfile(2, "Bob"),
+		generateProfile(3, "Charlie"),
+		generateProfile(4, "David"),
+		generateProfile(5, "Daniel"),
+	}
+	carts := []entity.Cart{
+		{UserId: 1},
+		{UserId: 2},
+		{UserId: 3},
+		{UserId: 4},
+	}
+
 	db.Create(users)
+	db.Create(profiles)
+	db.Create(carts)
+
 }
 
 func hashPassword(text string) string {
