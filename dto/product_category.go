@@ -48,7 +48,7 @@ type ProductCategoryReq struct {
 }
 
 func (pcr *ProductCategoryReq) ToModel() entity.ProductCategory {
-	return entity.ProductCategory{Name: pcr.Name, IsDrug: *pcr.IsDrug}
+	return entity.ProductCategory{Name: pcr.Name}
 }
 
 type ProductCategoryRes struct {
@@ -59,5 +59,5 @@ type ProductCategoryRes struct {
 }
 
 func NewProductCategoryRes(pc *entity.ProductCategory) ProductCategoryRes {
-	return ProductCategoryRes{Id: pc.Id, Name: pc.Name, IsDrug: pc.IsDrug, Image: pc.Image}
+	return ProductCategoryRes{Id: pc.Id, Name: pc.Name}
 }

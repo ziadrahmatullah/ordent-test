@@ -8,6 +8,12 @@ import (
 )
 
 func Seed(db *gorm.DB) {
+	roles := []*entity.Role{
+		{Id: entity.RoleUser, Name: "user"},
+		{Id: entity.RoleAdmin, Name: "shop-admin"},
+		{Id: entity.RoleSuperAdmin, Name: "super-admin"},
+	}
+
 	users := []*entity.User{
 		{Email: "alice@example.com", Password: hashPassword("Alice12345"), RoleId: entity.RoleUser, IsVerified: true},
 		{Email: "bob@example.com", Password: hashPassword("Bob12345"), RoleId: entity.RoleUser, IsVerified: true},
@@ -29,6 +35,11 @@ func Seed(db *gorm.DB) {
 		{UserId: 3},
 		{UserId: 4},
 	}
+
+	provinces := getProvinces()
+
+	cities := getCities()
+
 	addresses := []*entity.Address{
 		{
 			Name:       "Alice",
@@ -77,9 +88,12 @@ func Seed(db *gorm.DB) {
 		},
 	}
 
+	db.Create(roles)
 	db.Create(users)
 	db.Create(profiles)
 	db.Create(carts)
+	db.Create(provinces)
+	db.Create(cities)
 	db.Create(addresses)
 
 }

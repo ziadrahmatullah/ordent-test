@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   rest:
-    container_name: example_rest_golang
+    container_name: ecommerce_rest_golang
     build: .
     ports:
       - "8080:8080"
@@ -13,14 +13,14 @@ services:
       DB_HOST: database
       DB_PORT: 5432
     networks:
-      example_network:
+      ecommerce_network:
     depends_on:
       database:
         condition: service_healthy
 
 
   rest_dev:
-    container_name: example_rest_dev_golang
+    container_name: ecommerce_rest_dev_golang
     build:
       context: .
       target: rest_watch
@@ -33,7 +33,7 @@ services:
       DB_HOST: database
       DB_PORT: 5432
     networks:
-      example_network:
+      ecommerce_network:
     depends_on:
       database:
         condition: service_healthy
@@ -44,8 +44,8 @@ services:
 
 
   database:
-    image: postgres:latest
-    container_name: example_db_postgres
+    image: postgis/postgis:16-3.4-alpine
+    container_name: ecommerce_db_postgres
     ports:
       - "5432:5432"
     environment:
@@ -53,17 +53,32 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d example_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U user -d ecommerce_db" ]
       interval: 5s
       timeout: 5s
       retries: 5
     volumes:
-      - example_volume:/var/lib/postgresql/data
+      - ecommerce_volume:/var/lib/postgresql/data
     networks:
-      example_network:
+      ecommerce_network:
+
+  postgis-migration:
+    build:
+      context: .
+      target: "postgis_migration"
+    environment:
+      DB_HOST: database
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+    networks:
+      ecommerce_network:
+    depends_on:
+      database:
+        condition: service_healthy
 
   migration:
-    container_name: example_migration
+    container_name: ecommerce_migration
     build:
       context: .
       target: "migration"
@@ -76,12 +91,12 @@ services:
       database:
         condition: service_healthy
     networks:
-      example_network:
+      ecommerce_network:
     volumes:
       - ./:/app
 
 volumes:
-  example_volume:
+  ecommerce_volume:
 
 networks:
-  example_network:
+  ecommerce_network:
