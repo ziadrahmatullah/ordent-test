@@ -38,8 +38,8 @@ func (r *orderRepository) FindAllOrders(ctx context.Context, query *valueobject.
 			query.WithSortBy("\"ordered_at\"")
 		}
 		db.Joins("LEFT JOIN order_items ON product_orders.id = order_items.order_id").
-			Joins("LEFT JOIN pharmacy_products ON pharmacy_products.id = order_items.pharmacy_product_id").
-			Joins("LEFT JOIN products ON pharmacy_products.product_id = products.id").
+			Joins("LEFT JOIN shop_products ON shop_products.id = order_items.shop_product_id").
+			Joins("LEFT JOIN products ON shop_products.product_id = products.id").
 			Joins("LEFT JOIN order_statuses ON order_statuses.id = product_orders.order_status_id")
 
 		if orderStatus != nil {
@@ -52,8 +52,8 @@ func (r *orderRepository) FindAllOrders(ctx context.Context, query *valueobject.
 				db.Where("products.name ILIKE ? ", name)
 			}
 		case entity.RoleAdmin:
-			db.Joins("LEFT JOIN pharmacies ON pharmacies.id = pharmacy_products.pharmacy_id").
-				Where("pharmacies.admin_id = ?", userId)
+			db.Joins("LEFT JOIN shops ON shops.id = shop_products.shop_id").
+				Where("shops.admin_id = ?", userId)
 		}
 		if roleId != entity.RoleUser {
 			db.Joins("LEFT JOIN profiles ON profiles.user_id = product_orders.profile_id")
@@ -63,7 +63,7 @@ func (r *orderRepository) FindAllOrders(ctx context.Context, query *valueobject.
 			db.Preload("Profile")
 		}
 		db.Group("product_orders.id")
-		db.Preload("OrderItems.PharmacyProduct.Product")
+		db.Preload("OrderItems.ShopProduct.Product")
 		db.Preload("OrderStatus")
 		return db
 	})
@@ -74,19 +74,19 @@ func (r *orderRepository) FindOrderDetail(ctx context.Context, orderId, userId u
 	query := r.conn(ctx).
 		Model(&entity.ProductOrder{}).
 		Joins("LEFT JOIN order_items ON order_items.order_id = product_orders.id").
-		Joins("LEFT JOIN pharmacy_products ON pharmacy_products.id = order_items.pharmacy_product_id").
-		Joins("LEFT JOIN pharmacies ON pharmacies.id = pharmacy_products.pharmacy_id").
-		Joins("LEFT JOIN admin_contacts ON admin_contacts.user_id = pharmacies.admin_id").
+		Joins("LEFT JOIN shop_products ON shop_products.id = order_items.shop_product_id").
+		Joins("LEFT JOIN shops ON shops.id = shop_products.shop_id").
+		Joins("LEFT JOIN admin_contacts ON admin_contacts.user_id = shops.admin_id").
 		Where("order_id = ? ", orderId).
-		Preload("OrderItems.PharmacyProduct.Pharmacy").
+		Preload("OrderItems.ShopProduct.Shop").
 		Preload("OrderStatus")
 	switch roleId {
 	case entity.RoleUser:
 		query = query.Where("profile_id = ?", userId)
 	case entity.RoleAdmin:
-		query = query.Where("pharmacies.admin_id = ?", userId)
+		query = query.Where("shops.admin_id = ?", userId)
 	case entity.RoleSuperAdmin:
-		query = query.Preload("OrderItems.PharmacyProduct.Pharmacy.Admin.AdminContact.User")
+		query = query.Preload("OrderItems.ShopProduct.Shop.Admin.AdminContact.User")
 	}
 	err := query.Find(&order).Error
 	if err != nil {

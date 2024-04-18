@@ -44,7 +44,7 @@ func New(handlers Handlers) http.Handler {
 	user.GET("", middleware.Auth(entity.RoleAdmin), handlers.User.GetAllUser)
 	user.GET("/profile", middleware.Auth(entity.RoleUser), handlers.User.GetProfile)
 	user.POST("/reset-password", middleware.Auth(entity.RoleUser), handlers.User.ResetPassword)
-	user.PUT("/profile", middleware.Auth(entity.RoleUser), handlers.User.UpdateProfile)
+	user.PUT("/profile", middleware.Auth(entity.RoleUser), middleware.ImageUploadMiddleware(), handlers.User.UpdateProfile)
 
 	address := router.Group("/addresses")
 	address.GET("", middleware.Auth(entity.RoleUser), handlers.Address.GetAddress)

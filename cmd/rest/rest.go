@@ -54,7 +54,7 @@ func main() {
 	orderItemR := repository.NewOrderItemRepository(db)
 	stockRecordR := repository.NewStockRecordRepository(db)
 
-	userU := usecase.NewUserUsecase(userR, profileR, hash)
+	userU := usecase.NewUserUsecase(userR, profileR, hash, imageHelper, manager)
 	authU := usecase.NewAuthUsecase(manager, userR, profileR, forgotPassR, cartR, mail, hash, jwt, imageHelper)
 	addressU := usecase.NewAddressUsecase(addressR, manager, shippingR)
 	productU := usecase.NewProductUsecase(manager, imageHelper, productR, categoryR, shopProductR)

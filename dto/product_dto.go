@@ -63,9 +63,6 @@ type AddProductRequest struct {
 	Height            string  `form:"height" binding:"required,numeric"`
 	Length            string  `form:"length" binding:"required,numeric"`
 	Width             string  `form:"width" binding:"required,numeric"`
-	GenericName       *string `form:"generic_name" binding:"omitempty"`
-	Content           *string `form:"content" binding:"omitempty"`
-	IsHidden          *bool   `form:"is_hidden" binding:"required"`
 	SellingUnit       string  `form:"selling_unit" binding:"required"`
 	Price             string  `form:"price" binding:"required,numeric"`
 }
@@ -113,7 +110,6 @@ func (r *AddProductRequest) ToProduct() *entity.Product {
 		Height:            height,
 		Length:            length,
 		Width:             width,
-		IsHidden:          *r.IsHidden,
 		Price:             Price,
 		SellingUnit:       r.SellingUnit,
 	}

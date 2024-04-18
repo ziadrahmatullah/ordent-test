@@ -60,7 +60,6 @@ func (h *ShopProductHandler) GetShopProductDetail(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
-
 	shopProduct, err := h.shopProductUsecase.FindOneShopPeoduct(c.Request.Context(), &entity.ShopProduct{ProductId: requestUri.ProductId, ShopId: requestUri.ShopId})
 	if err != nil {
 		_ = c.Error(err)

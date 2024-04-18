@@ -33,13 +33,13 @@ func (r *orderItemRepository) ListOfOrderItem(ctx context.Context, orderId uint,
 	var orderItems []*entity.OrderItem
 	err := r.conn(ctx).
 		Model(&entity.OrderItem{}).
-		Joins("JOIN pharmacy_products ON pharmacy_products.id = order_items.pharmacy_product_id ").
-		Joins("JOIN pharmacies ON pharmacies.id = pharmacy_products.pharmacy_id").
+		Joins("JOIN shop_products ON shop_products.id = order_items.shop_product_id ").
+		Joins("JOIN shops ON shops.id = shop_products.shop_id").
 		Joins("JOIN product_orders ON product_orders.id = order_items.order_id").
 		Where("order_id = ?", orderId).
-		Where("pharmacies.admin_id = ?", userId).
-		Preload("PharmacyProduct").
-		Preload("PharmacyProduct.Pharmacy").
+		Where("shops.admin_id = ?", userId).
+		Preload("ShopProduct").
+		Preload("ShopProduct.Shop").
 		Find(&orderItems).Error
 	if err != nil {
 		return nil, err

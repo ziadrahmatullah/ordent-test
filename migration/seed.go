@@ -305,9 +305,9 @@ func Seed(db *gorm.DB) {
 		},
 	}
 
-	pharmacyProduct := generateShopProduct(301, 0)
-	pharmacyProduct2 := generateShopProduct(601, 300)
-	pharmacyProduct3 := generateShopProduct(908, 600)
+	shopProduct := generateShopProduct(301, 0)
+	shopProduct2 := generateShopProduct(601, 300)
+	shopProduct3 := generateShopProduct(908, 600)
 
 	stockRecords := []*entity.StockRecord{
 		{ShopProductId: 1, Quantity: 11, IsReduction: false, ChangeAt: time.Date(2024, time.January, 10, 0, 0, 0, 0, time.UTC)},
@@ -336,9 +336,9 @@ func Seed(db *gorm.DB) {
 	db.Create(products)
 	db.Create(orderStatuses)
 	db.Create(orders)
-	db.Create(pharmacyProduct)
-	db.Create(pharmacyProduct2)
-	db.Create(pharmacyProduct3)
+	db.Create(shopProduct)
+	db.Create(shopProduct2)
+	db.Create(shopProduct3)
 	db.Create(orderItems)
 	db.Create(stockRecords)
 

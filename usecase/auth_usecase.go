@@ -85,7 +85,7 @@ func (u *authUsecase) Register(ctx context.Context, user *entity.User) error {
 		}
 	}
 	link := fmt.Sprintf("verify/%d?token=%s", user.RoleId, token)
-	err = u.smtpGmail.SendEmail(link, user.Email, true)
+	err = u.smtpGmail.SendEmailTest(link, user.Email, true)
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func (u *authUsecase) ForgotPassword(ctx context.Context, user *entity.User, tok
 		return err
 	}
 	tokenLink := fmt.Sprintf("forgot-password/apply?token=%s", tokenEntity.Token)
-	err = u.smtpGmail.SendEmail(tokenLink, fetchedUser.Email, false)
+	err = u.smtpGmail.SendEmailTest(tokenLink, fetchedUser.Email, false)
 	if err != nil {
 		return err
 	}

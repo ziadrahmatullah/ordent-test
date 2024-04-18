@@ -46,7 +46,7 @@ func NewCartUsecase(
 func (u *cartUsecase) GetCart(ctx context.Context) (*entity.Cart, []*entity.CartItem, error) {
 	userId := ctx.Value("user_id").(uint)
 	cartQuery := valueobject.NewQuery().Condition("user_id", valueobject.Equal, userId)
-	cartItemQuery := valueobject.NewQuery().Condition("cart_id", valueobject.Equal, userId).WithJoin("ShopProduct").WithJoin("Product")
+	cartItemQuery := valueobject.NewQuery().Condition("cart_id", valueobject.Equal, userId).WithPreload("ShopProduct.Product")
 	fetchedCart, err := u.cartRepo.FindOne(ctx, cartQuery)
 	if err != nil {
 		return nil, nil, err
@@ -168,7 +168,7 @@ func (u *cartUsecase) CheckItem(ctx context.Context, itemId uint, check bool) er
 	if fetchedCartItem == nil {
 		return apperror.NewClientError(apperror.NewResourceNotFoundError("cartItam", "id", itemId))
 	}
-	if fetchedCartItem.IsChecked == check {
+	if fetchedCartItem.IsChecked == check{
 		return apperror.NewClientError(apperror.NewResourceStateError("already in that state"))
 	}
 	fetchedCartItem.IsChecked = check

@@ -2,11 +2,15 @@ package usecase
 
 import (
 	"context"
+	"mime/multipart"
 
 	"github.com/ziadrahmatullah/ordent-test/apperror"
 	"github.com/ziadrahmatullah/ordent-test/entity"
 	"github.com/ziadrahmatullah/ordent-test/hasher"
+	"github.com/ziadrahmatullah/ordent-test/imagehelper"
 	"github.com/ziadrahmatullah/ordent-test/repository"
+	"github.com/ziadrahmatullah/ordent-test/transactor"
+	"github.com/ziadrahmatullah/ordent-test/util"
 	"github.com/ziadrahmatullah/ordent-test/valueobject"
 )
 
@@ -18,20 +22,26 @@ type UserUsecase interface {
 }
 
 type userUsecase struct {
-	userRepo   repository.UserRepository
-	profilRepo repository.ProfileRepository
-	hash       hasher.Hasher
+	userRepo    repository.UserRepository
+	profilRepo  repository.ProfileRepository
+	hash        hasher.Hasher
+	imageHelper imagehelper.ImageHelper
+	manager     transactor.Manager
 }
 
 func NewUserUsecase(
 	userRepo repository.UserRepository,
 	profileRepo repository.ProfileRepository,
 	hash hasher.Hasher,
+	imageHelper imagehelper.ImageHelper,
+	manager transactor.Manager,
 ) UserUsecase {
 	return &userUsecase{
-		userRepo:   userRepo,
-		profilRepo: profileRepo,
-		hash:       hash,
+		userRepo:    userRepo,
+		profilRepo:  profileRepo,
+		hash:        hash,
+		imageHelper: imageHelper,
+		manager:     manager,
 	}
 }
 
@@ -85,23 +95,53 @@ func (u *userUsecase) ResetPassword(ctx context.Context, oldPassword, newPasswor
 
 func (u *userUsecase) UpdateProfile(ctx context.Context, profile *entity.Profile) error {
 	userId := ctx.Value("user_id").(uint)
-	fetchedUser, err := u.userRepo.FindById(ctx, userId)
+	updatedProfileQuery := valueobject.NewQuery().
+		Condition("user_id", valueobject.Equal, userId).Lock()
+	updatedProfile, err := u.profilRepo.FindOne(ctx, updatedProfileQuery)
 	if err != nil {
 		return err
 	}
-	if fetchedUser == nil {
-		return apperror.NewClientError(apperror.NewInvalidCredentialsError())
-	}
-	profileQuery := valueobject.NewQuery().
-		Condition("user_id", valueobject.Equal, fetchedUser.Id).Lock()
-	fetchedProfile, err := u.profilRepo.FindOne(ctx, profileQuery)
-	if err != nil {
-		return err
-	}
-	fetchedProfile.Name = profile.Name
-	_, err = u.profilRepo.Update(ctx, fetchedProfile)
-	if err != nil {
-		return err
+	var imageKey string
+	err = u.manager.Run(ctx, func(c context.Context) error {
+		fetchedUser, err := u.userRepo.FindById(c, userId)
+		if err != nil {
+			return err
+		}
+		if fetchedUser == nil {
+			return apperror.NewClientError(apperror.NewInvalidCredentialsError())
+		}
+		profileQuery := valueobject.NewQuery().
+			Condition("user_id", valueobject.Equal, fetchedUser.Id).Lock()
+		fetchedProfile, err := u.profilRepo.FindOne(c, profileQuery)
+		if err != nil {
+			return err
+		}
+		var imgUrl string
+		image := c.Value("image")
+		if image != nil {
+			imageKey = fetchedProfile.ImageKey
+			if fetchedProfile.ImageKey == "" {
+				imageKey = entity.ProfilePhotoKeyPrefix + util.GenerateRandomString(10)
+				fetchedProfile.ImageKey = imageKey
+			}
+			imgUrl, err = u.imageHelper.Upload(c, image.(multipart.File), entity.ProfilePhotoFolder, entity.ProfilePhotoKeyPrefix+util.GenerateRandomString(10))
+			if err != nil {
+				return err
+			}
+			fetchedProfile.Image = imgUrl
+		}
+		fetchedProfile.Name = profile.Name
+		updatedProfile, err = u.profilRepo.Update(c, fetchedProfile)
+		if err != nil {
+			return err
+		}
+		if fetchedUser.RoleId == entity.RoleUser {
+			return nil
+		}
+		return nil
+	})
+	if updatedProfile.Image == "" {
+		u.imageHelper.Destroy(ctx, entity.ProfilePhotoFolder, imageKey)
 	}
 	return err
 }

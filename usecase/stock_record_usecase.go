@@ -8,6 +8,7 @@ import (
 
 	"github.com/ziadrahmatullah/ordent-test/apperror"
 	"github.com/ziadrahmatullah/ordent-test/entity"
+	"github.com/ziadrahmatullah/ordent-test/logger"
 	"github.com/ziadrahmatullah/ordent-test/repository"
 	"github.com/ziadrahmatullah/ordent-test/transactor"
 	"github.com/ziadrahmatullah/ordent-test/valueobject"
@@ -19,20 +20,20 @@ type StockRecordUsecase interface {
 }
 
 type stockRecordUsecase struct {
-	stockRecordRepository     repository.StockRecordRepository
+	stockRecordRepository repository.StockRecordRepository
 	shopProductRepository repository.ShopProductRepository
-	manager                   transactor.Manager
+	manager               transactor.Manager
 }
 
 func NewStockRecordUsecase(
-	stockRecordRepo repository.StockRecordRepository, 
-	shopProductRepo repository.ShopProductRepository, 
+	stockRecordRepo repository.StockRecordRepository,
+	shopProductRepo repository.ShopProductRepository,
 	manager transactor.Manager,
 ) StockRecordUsecase {
 	return &stockRecordUsecase{
-		stockRecordRepository: stockRecordRepo, 
-		shopProductRepository: shopProductRepo, 
-		manager: manager}
+		stockRecordRepository: stockRecordRepo,
+		shopProductRepository: shopProductRepo,
+		manager:               manager}
 }
 
 func (u *stockRecordUsecase) FindAllStockRecord(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
@@ -50,6 +51,8 @@ func (u *stockRecordUsecase) CreateStockRecord(ctx context.Context, stockRecord 
 		return nil, apperror.NewClientError(fmt.Errorf("product with id %v not found", stockRecord.ShopProductId))
 	}
 	if shopProduct.Shop.AdminId != ctx.Value("user_id").(uint) {
+		logger.Log.Info(ctx.Value("user_id").(uint))
+		logger.Log.Info(shopProduct.Shop.AdminId)
 		return nil, apperror.NewForbiddenActionError("cannot have access to change stock")
 	}
 	err = u.manager.Run(ctx, func(c context.Context) error {

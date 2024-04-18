@@ -67,7 +67,7 @@ func (u *shippingMethodUsecase) GetShippingMethod(ctx context.Context, addressId
 		return nil, err
 	}
 	if fetchedShop == nil || len(fetchedShop) < 1 {
-		return nil, apperror.NewClientError(fmt.Errorf("there's no pharmacy available near this address"))
+		return nil, apperror.NewClientError(fmt.Errorf("there's no shop available near this address"))
 	}
 
 	distanceInKM, err := u.shippingRepo.FindDistanceBetween(ctx, fetchedShop[0].Location, fetchedAddress.Location)

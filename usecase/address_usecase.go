@@ -115,7 +115,7 @@ func (u *addressUsecase) DeleteAddress(ctx context.Context, addressId uint) erro
 			return err
 		}
 		if address == nil {
-			return apperror.NewResourceNotFoundError("address", "id", userId)
+			return apperror.NewResourceNotFoundError("address", "id", addressId)
 		}
 		err = u.addressRepo.Delete(c, address)
 		if err != nil {
