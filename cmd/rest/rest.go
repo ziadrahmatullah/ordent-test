@@ -34,16 +34,20 @@ func main() {
 	profileR := repository.NewProfileRepository(db)
 	cartR := repository.NewCartRepository(db)
 	forgotPassR := repository.NewForgotPasswordRepository(db)
+	addressR := repository.NewAddressRepository(db)
 
 	userU := usecase.NewUserUsecase(userR)
 	authU := usecase.NewAuthUsecase(manager, userR, profileR, forgotPassR, cartR, hash, jwt)
+	addressU := usecase.NewAddressUsecase(addressR, manager)
 
 	userH := handler.NewUserHandler(userU)
 	authH := handler.NewAuthHandler(authU)
+	addressH := handler.NewAddressHandler(addressU)
 
 	handlers := router.Handlers{
-		User: userH,
-		Auth: authH,
+		User:    userH,
+		Auth:    authH,
+		Address: addressH,
 	}
 
 	r := router.New(handlers)

@@ -6,13 +6,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ziadrahmatullah/ordent-test/apperror"
+	"github.com/ziadrahmatullah/ordent-test/entity"
 	"github.com/ziadrahmatullah/ordent-test/handler"
 	"github.com/ziadrahmatullah/ordent-test/middleware"
 )
 
 type Handlers struct {
-	User *handler.UserHandler
-	Auth *handler.AuthHandler
+	User    *handler.UserHandler
+	Auth    *handler.AuthHandler
+	Address *handler.AddressHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -33,6 +35,13 @@ func New(handlers Handlers) http.Handler {
 
 	user := router.Group("/users")
 	user.GET("", handlers.User.GetAllUser)
+
+	address := router.Group("/addresses")
+	address.GET("", middleware.Auth(entity.RoleUser), handlers.Address.GetAddress)
+	address.POST("", middleware.Auth(entity.RoleUser), handlers.Address.CreateAddress)
+	address.PUT("/:id", middleware.Auth(entity.RoleUser), handlers.Address.UpdateAddress)
+	address.DELETE("/:id", middleware.Auth(entity.RoleUser), handlers.Address.DeleteAddress)
+	address.PATCH("/:id/default", middleware.Auth(entity.RoleUser), handlers.Address.ChangeDefaultAddress)
 
 	return router
 }
