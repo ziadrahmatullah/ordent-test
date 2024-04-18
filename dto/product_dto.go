@@ -141,8 +141,7 @@ type ProductPriceRangeResponse struct {
 	Width             decimal.Decimal `json:"width"`
 	Image             string          `json:"image"`
 	IsHidden          bool            `json:"is_hidden"`
-	TopPrice          decimal.Decimal `json:"top_price"`
-	FloorPrice        decimal.Decimal `json:"floor_price"`
+	Price             string          `json:"price"`
 	SellingUnit       string          `json:"selling_unit"`
 }
 
@@ -163,13 +162,12 @@ type ProductResponse struct {
 	SellingUnit       string          `json:"selling_unit"`
 }
 
-func NewFromShopProduct(product *entity.Product, top, floor decimal.Decimal) *ProductPriceRangeResponse {
+func NewFromShopProduct(product *entity.Product) *ProductPriceRangeResponse {
 	return &ProductPriceRangeResponse{
 		Id:                product.Id,
 		Name:              product.Name,
 		ProductCategoryId: product.ProductCategoryId,
-		TopPrice:          top,
-		FloorPrice:        floor,
+		Price:             product.Price.String(),
 		SellingUnit:       product.SellingUnit,
 		Manufacture:       product.Manufacture,
 		Detail:            product.Detail,
