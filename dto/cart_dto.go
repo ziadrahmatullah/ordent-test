@@ -20,7 +20,7 @@ type CartResponse struct {
 }
 
 type AddItemRequest struct {
-	ProductId uint `json:"product_id"`
+	ShopProductId uint `json:"shop_product_id"`
 	Quantity  int  `json:"qty"`
 }
 
@@ -38,7 +38,7 @@ type CartCheckRequest struct {
 
 func (r *AddItemRequest) ToItem() *entity.CartItem {
 	return &entity.CartItem{
-		ProductId: r.ProductId,
+		ShopProductId: r.ShopProductId,
 		Quantity:  r.Quantity,
 		IsChecked: false,
 	}
