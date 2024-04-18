@@ -19,6 +19,7 @@ type Handlers struct {
 	Shop        *handler.ShopHandler
 	ShopProduct *handler.ShopProductHandler
 	Cart        *handler.CartHandler
+	Order       *handler.OrderHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -76,6 +77,15 @@ func New(handlers Handlers) http.Handler {
 	cart.DELETE("/:id", middleware.Auth(entity.RoleUser), handlers.Cart.DeleteItem)
 	cart.PATCH("/check/:id", middleware.Auth(entity.RoleUser), handlers.Cart.CheckItem)
 	cart.PUT("/check-all", middleware.Auth(entity.RoleUser), handlers.Cart.CheckAllItem)
+
+	order := router.Group("/order")
+	order.POST("", middleware.Auth(entity.RoleUser), handlers.Order.CreateOrder)
+	order.GET("", middleware.Auth(entity.RoleUser, entity.RoleAdmin, entity.RoleSuperAdmin), handlers.Order.OrderHistory)
+	order.GET("/:id", middleware.Auth(entity.RoleUser, entity.RoleAdmin, entity.RoleSuperAdmin), handlers.Order.OrderDetail)
+	order.GET("/items/:id", middleware.Auth(entity.RoleUser), handlers.Order.GetAvailableProduct)
+	order.POST("/:id/upload-proof", middleware.Auth(entity.RoleUser), middleware.ImageUploadMiddleware(), handlers.Order.UploadPaymentProof)
+	order.PATCH("/:id/status-admin", middleware.Auth(entity.RoleAdmin), handlers.Order.AdminUpdateOrderStatus)
+	order.PATCH("/:id/status-user", middleware.Auth(entity.RoleUser), handlers.Order.UserUpdateOrderStatus)
 
 	return router
 }

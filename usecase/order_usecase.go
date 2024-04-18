@@ -30,7 +30,7 @@ type orderUsecase struct {
 	imageHelper      imagehelper.ImageHelper
 	cartRepo         repository.CartRepository
 	orderItemRepo    repository.OrderItemRepository
-	productOrderRepo repository.ProductOrderRepository
+	productOrderRepo repository.OrderRepository
 	cartItemRepo     repository.CartItemRepository
 	addressRepo      repository.AddressRepository
 	shopRepo         repository.ShopRepository
@@ -42,22 +42,22 @@ func NewOrderUsecase(
 	imageHelper imagehelper.ImageHelper,
 	cartRepo repository.CartRepository,
 	orderItemRepo repository.OrderItemRepository,
-	productOrderRepo repository.ProductOrderRepository,
+	orderRepo repository.OrderRepository,
 	cartItemRepo repository.CartItemRepository,
 	addressRepo repository.AddressRepository,
 	shopRepo repository.ShopRepository,
 	shopProductRepo repository.ShopProductRepository,
 ) OrderUsecase {
 	return &orderUsecase{
-		manager:          manager,
-		imageHelper:      imageHelper,
-		cartRepo:         cartRepo,
-		orderItemRepo:    orderItemRepo,
-		productOrderRepo: productOrderRepo,
-		cartItemRepo:     cartItemRepo,
-		addressRepo:      addressRepo,
-		shopRepo:         shopRepo,
-		shopProductRepo:  shopProductRepo,
+		manager:         manager,
+		imageHelper:     imageHelper,
+		cartRepo:        cartRepo,
+		orderItemRepo:   orderItemRepo,
+		orderRepo:       orderRepo,
+		cartItemRepo:    cartItemRepo,
+		addressRepo:     addressRepo,
+		shopRepo:        shopRepo,
+		shopProductRepo: shopProductRepo,
 	}
 }
 func (u *orderUsecase) CreateOrder(ctx context.Context, userOrder *entity.ProductOrder) (uint, error) {
@@ -80,7 +80,7 @@ func (u *orderUsecase) CreateOrder(ctx context.Context, userOrder *entity.Produc
 		order.PaymentMethod = userOrder.PaymentMethod
 		order.AddressId = userOrder.AddressId
 		order.ItemOrderQty = len(shopProducts)
-		createdOrder, err := u.productOrderRepo.Create(c, &order)
+		createdOrder, err := u.orderRepo.Create(c, &order)
 		if err != nil {
 			return err
 		}

@@ -9,25 +9,25 @@ import (
 	"gorm.io/gorm"
 )
 
-type ProductOrderRepository interface {
+type OrderRepository interface {
 	BaseRepository[entity.ProductOrder]
 	FindAllOrders(context.Context, *valueobject.Query, uint, entity.RoleId) (*valueobject.PagedResult, error)
 	FindOrderDetail(context.Context, uint, uint, entity.RoleId) (*entity.ProductOrder, error)
 }
 
-type productOrderRepository struct {
+type orderRepository struct {
 	*baseRepository[entity.ProductOrder]
 	db *gorm.DB
 }
 
-func NewProductOrderRepository(db *gorm.DB) ProductOrderRepository {
-	return &productOrderRepository{
+func NewOrderRepository(db *gorm.DB) OrderRepository {
+	return &orderRepository{
 		db:             db,
 		baseRepository: &baseRepository[entity.ProductOrder]{db: db},
 	}
 }
 
-func (r *productOrderRepository) FindAllOrders(ctx context.Context, query *valueobject.Query, userId uint, roleId entity.RoleId) (*valueobject.PagedResult, error) {
+func (r *orderRepository) FindAllOrders(ctx context.Context, query *valueobject.Query, userId uint, roleId entity.RoleId) (*valueobject.PagedResult, error) {
 	return r.paginate(ctx, query, func(db *gorm.DB) *gorm.DB {
 		orderStatus := query.GetConditionValue("order_status")
 		name := query.GetConditionValue("name")
@@ -70,7 +70,7 @@ func (r *productOrderRepository) FindAllOrders(ctx context.Context, query *value
 	})
 }
 
-func (r *productOrderRepository) FindOrderDetail(ctx context.Context, orderId, userId uint, roleId entity.RoleId) (*entity.ProductOrder, error) {
+func (r *orderRepository) FindOrderDetail(ctx context.Context, orderId, userId uint, roleId entity.RoleId) (*entity.ProductOrder, error) {
 	var order entity.ProductOrder
 	query := r.conn(ctx).
 		Model(&entity.ProductOrder{}).
