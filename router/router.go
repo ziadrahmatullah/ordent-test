@@ -12,11 +12,12 @@ import (
 )
 
 type Handlers struct {
-	User    *handler.UserHandler
-	Auth    *handler.AuthHandler
-	Address *handler.AddressHandler
-	Product *handler.ProductHandler
-	Shop    *handler.ShopHandler
+	User        *handler.UserHandler
+	Auth        *handler.AuthHandler
+	Address     *handler.AddressHandler
+	Product     *handler.ProductHandler
+	Shop        *handler.ShopHandler
+	ShopProduct *handler.ShopProductHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -56,10 +57,16 @@ func New(handlers Handlers) http.Handler {
 
 	shop := router.Group("/shops")
 	shop.GET("", middleware.Auth(entity.RoleAdmin), handlers.Shop.GetAllShop)
-	shop.GET("/:pharmacy_id", middleware.Auth(entity.RoleAdmin, entity.RoleSuperAdmin), handlers.Shop.GetShopDetail)
+	shop.GET("/:shop_id", middleware.Auth(entity.RoleAdmin, entity.RoleSuperAdmin), handlers.Shop.GetShopDetail)
 	shop.POST("", middleware.Auth(entity.RoleAdmin), handlers.Shop.AddShop)
-	shop.PUT("/:pharmacy_id", middleware.Auth(entity.RoleAdmin), handlers.Shop.UpdateShop)
-	shop.DELETE("/:pharmacy_id", handlers.Shop.DeleteShop)
+	shop.PUT("/:shop_id", middleware.Auth(entity.RoleAdmin), handlers.Shop.UpdateShop)
+	shop.DELETE("/:shop_id", handlers.Shop.DeleteShop)
+
+	shopProduct := shop.Group("/:shop_id/products")
+	shopProduct.GET("", middleware.Auth(entity.RoleAdmin), handlers.ShopProduct.GetAllShopProduct)
+	shopProduct.POST("", middleware.Auth(entity.RoleAdmin), handlers.ShopProduct.PostShopProduct)
+	shopProduct.GET("/:product_id", middleware.Auth(entity.RoleAdmin), handlers.ShopProduct.GetShopProductDetail)
+	shopProduct.PUT("/:product_id", middleware.Auth(entity.RoleAdmin), handlers.ShopProduct.PutShopProduct)
 
 	return router
 }
