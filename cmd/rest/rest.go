@@ -36,7 +36,7 @@ func main() {
 	forgotPassR := repository.NewForgotPasswordRepository(db)
 	addressR := repository.NewAddressRepository(db)
 
-	userU := usecase.NewUserUsecase(userR)
+	userU := usecase.NewUserUsecase(userR, profileR, hash)
 	authU := usecase.NewAuthUsecase(manager, userR, profileR, forgotPassR, cartR, hash, jwt)
 	addressU := usecase.NewAddressUsecase(addressR, manager)
 

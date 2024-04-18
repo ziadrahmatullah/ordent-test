@@ -1,6 +1,44 @@
 package dto
 
-import "github.com/ziadrahmatullah/ordent-test/valueobject"
+import (
+	"github.com/ziadrahmatullah/ordent-test/entity"
+	"github.com/ziadrahmatullah/ordent-test/valueobject"
+)
+
+type UserProfileResponse struct {
+	Name      string `json:"name"`
+	Image     string `json:"image"`
+	Email     string `json:"email"`
+	Birthdate string `json:"dob"`
+}
+
+type ResetPasswordRequest struct {
+	OldPassword string `binding:"required" json:"old_password"`
+	NewPassword string `binding:"required" json:"new_password"`
+}
+
+type ResetPasswordResponse struct {
+	Message string `json:"message"`
+}
+
+type UpdateProfileRequest struct {
+	Name string `binding:"required" json:"name"`
+}
+
+func ToUserProfileDTO(user *entity.User, profile *entity.Profile) UserProfileResponse {
+	var userProfileResponse UserProfileResponse
+	userProfileResponse.Name = profile.Name
+	userProfileResponse.Image = profile.Image
+	userProfileResponse.Email = user.Email
+	userProfileResponse.Birthdate = profile.Birthdate.Format("2006-01-02")
+	return userProfileResponse
+}
+
+func (r *UpdateProfileRequest) ToProfile() *entity.Profile {
+	return &entity.Profile{
+		Name: r.Name,
+	}
+}
 
 type UserQueryParamReq struct {
 	Email      *string `form:"email"`
