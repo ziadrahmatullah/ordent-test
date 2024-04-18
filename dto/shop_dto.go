@@ -107,66 +107,7 @@ func NewShopRes(p *entity.Shop) *ShopRes {
 		Products:                productsTemp}
 }
 
-type ShopSuperAdminRes struct {
-	Id             uint          `json:"id"`
-	Name           string        `json:"name"`
-	Admin          *AdminShopRes `json:"admin"`
-	StartTime      string        `json:"start_time"`
-	EndTime        string        `json:"end_time"`
-	OperationalDay []string      `json:"operational_day"`
-	City           string        `json:"city"`
-	Province       string        `json:"province"`
-}
-
-func NewShopSuperAdminRes(p *entity.Shop) *ShopSuperAdminRes {
-	operationalDay := strings.Split(p.OperationalDay, ",")
-	return &ShopSuperAdminRes{
-		Id:             p.Id,
-		Name:           p.Name,
-		Admin:          NewAdminShopRes(&p.Admin),
-		OperationalDay: operationalDay,
-		StartTime:      p.StartTime.Format("15:04"),
-		EndTime:        p.EndTime.Format("15:04"),
-		City:           p.City.Name,
-		Province:       p.Province.Name}
-}
-
 type ListShopQueryParam struct {
-	Name   *string `form:"name"`
-	SortBy *string `form:"sort_by" binding:"omitempty,oneof=name start_time end_time"`
-	Order  *string `form:"order" binding:"omitempty,oneof=asc desc"`
-	Limit  *int    `form:"limit" binding:"omitempty,numeric,min=1"`
-	Page   *int    `form:"page" binding:"omitempty,numeric,min=1"`
-}
-
-func (qp *ListShopQueryParam) ToQuery() (*valueobject.Query, error) {
-	query := valueobject.NewQuery()
-
-	if qp.Page != nil {
-		query.WithPage(*qp.Page)
-	}
-	if qp.Limit != nil {
-		query.WithLimit(*qp.Limit)
-	}
-
-	if qp.Order != nil {
-		query.WithOrder(valueobject.Order(*qp.Order))
-	}
-
-	if qp.SortBy != nil {
-		query.WithSortBy(*qp.SortBy)
-	} else {
-		query.WithSortBy("id")
-	}
-
-	if qp.Name != nil {
-		query.Condition("name", valueobject.ILike, *qp.Name)
-	}
-
-	return query, nil
-}
-
-type ListShopSuperAdminQueryParam struct {
 	Name     *string `form:"name"`
 	SortBy   *string `form:"sort_by" binding:"omitempty,oneof=shop_name admin_name"`
 	Province *uint   `form:"province" binding:"omitempty,numeric,min=1"`
@@ -175,7 +116,7 @@ type ListShopSuperAdminQueryParam struct {
 	Page     *int    `form:"page" binding:"omitempty,numeric,min=1"`
 }
 
-func (qp *ListShopSuperAdminQueryParam) ToQuery() (*valueobject.Query, error) {
+func (qp *ListShopQueryParam) ToQuery() (*valueobject.Query, error) {
 	query := valueobject.NewQuery()
 
 	if qp.Page != nil {

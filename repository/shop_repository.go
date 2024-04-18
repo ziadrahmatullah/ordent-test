@@ -12,9 +12,8 @@ import (
 
 type ShopRepository interface {
 	BaseRepository[entity.Shop]
-	FindAllShop(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
 	FindNearestShopFromAddress(ctx context.Context, addressId uint) ([]*entity.Shop, error)
-	FindAllShopSuperAdmin(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
+	FindAllShop(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error)
 }
 
 type shopRepository struct {
@@ -30,25 +29,6 @@ func NewShopRepository(db *gorm.DB) ShopRepository {
 }
 
 func (r *shopRepository) FindAllShop(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
-	return r.paginate(ctx, query, func(db *gorm.DB) *gorm.DB {
-		switch strings.Split(query.GetOrder(), " ")[0] {
-		case "name":
-			query.WithSortBy("\"shops\".name")
-		case "id":
-			query.WithSortBy("\"shops\".id ")
-		}
-		db.Where("\"shops\".admin_id = ?", ctx.Value("user_id").(uint))
-		name := query.GetConditionValue("name")
-		db.Joins("City").Joins("Province")
-
-		if name != nil {
-			db.Where("\"shops\".name ILIKE ?", name)
-		}
-		return db
-	})
-}
-
-func (r *shopRepository) FindAllShopSuperAdmin(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
 	return r.paginate(ctx, query, func(db *gorm.DB) *gorm.DB {
 		switch strings.Split(query.GetOrder(), " ")[0] {
 		case "shop_name":

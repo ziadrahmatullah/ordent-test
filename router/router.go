@@ -16,6 +16,7 @@ type Handlers struct {
 	Auth    *handler.AuthHandler
 	Address *handler.AddressHandler
 	Product *handler.ProductHandler
+	Shop    *handler.ShopHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -53,8 +54,13 @@ func New(handlers Handlers) http.Handler {
 	products.PUT("/:id", middleware.Auth(entity.RoleSuperAdmin), middleware.ImageUploadMiddleware(), handlers.Product.UpdateProduct)
 	products.GET("/:id", handlers.Product.GetProductDetail)
 
+	shop := router.Group("/shops")
+	shop.GET("", middleware.Auth(entity.RoleAdmin), handlers.Shop.GetAllShop)
+	shop.GET("/:pharmacy_id", middleware.Auth(entity.RoleAdmin, entity.RoleSuperAdmin), handlers.Shop.GetShopDetail)
+	shop.POST("", middleware.Auth(entity.RoleAdmin), handlers.Shop.AddShop)
+	shop.PUT("/:pharmacy_id", middleware.Auth(entity.RoleAdmin), handlers.Shop.UpdateShop)
+	shop.DELETE("/:pharmacy_id", handlers.Shop.DeleteShop)
 
-	
 	return router
 }
 
