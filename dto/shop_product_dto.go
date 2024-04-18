@@ -30,7 +30,6 @@ func (p *ShopProductUpdateReq) ToModel() (*entity.ShopProduct, error) {
 	}
 	return &entity.ShopProduct{
 		Price:    price,
-		IsActive: *p.IsActive,
 	}, nil
 }
 func (p *ShopProductReq) ToModel() (*entity.ShopProduct, error) {
@@ -42,7 +41,6 @@ func (p *ShopProductReq) ToModel() (*entity.ShopProduct, error) {
 		ProductId: p.ProductId,
 		Stock:     *p.Stock,
 		Price:     price,
-		IsActive:  *p.IsActive,
 	}, nil
 }
 
@@ -61,11 +59,12 @@ func NewProductPhamarcyRes(p *entity.ShopProduct) *ProductShopRes {
 		product = NewFromProduct(p.Product)
 	}
 
-	return &ProductShopRes{Id: p.Id,
+	return &ProductShopRes{
+		Id: p.Id,
 		Product:  product,
 		Stock:    p.Stock,
 		Price:    p.Price,
-		IsActive: p.IsActive}
+	}
 }
 
 type ListShopProductQueryParam struct {

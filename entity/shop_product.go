@@ -15,7 +15,6 @@ type ShopProduct struct {
 	Shop      *Shop
 	Stock     int             `gorm:"not null"`
 	Price     decimal.Decimal `gorm:"not null;type:numeric"`
-	IsActive  bool            `gorm:"not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
