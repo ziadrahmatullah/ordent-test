@@ -11,7 +11,7 @@ import (
 	"github.com/ziadrahmatullah/ordent-test/util"
 )
 
-func Auth(roles ...entity.Role) gin.HandlerFunc {
+func Auth(roles ...entity.RoleId) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		bearerToken := c.GetHeader("Authorization")
 		token, err := extractBearerToken(bearerToken)
@@ -30,10 +30,10 @@ func Auth(roles ...entity.Role) gin.HandlerFunc {
 		}
 
 		ctx := context.WithValue(c.Request.Context(), "user_id", claims.Id)
-		ctx = context.WithValue(ctx, "role", claims.Role)
+		ctx = context.WithValue(ctx, "role_id", claims.RoleId)
 		c.Request = c.Request.WithContext(ctx)
 
-		if !util.IsMemberOf(roles, claims.Role) {
+		if !util.IsMemberOf(roles, claims.RoleId) {
 			c.Abort()
 			_ = c.Error(apperror.NewForbiddenActionError("permission denied"))
 			return

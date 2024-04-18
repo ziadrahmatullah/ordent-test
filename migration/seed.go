@@ -3,17 +3,18 @@ package migration
 import (
 	"github.com/ziadrahmatullah/ordent-test/entity"
 	"github.com/ziadrahmatullah/ordent-test/hasher"
+	"github.com/ziadrahmatullah/ordent-test/valueobject"
 	"gorm.io/gorm"
 )
 
 func Seed(db *gorm.DB) {
 	users := []*entity.User{
-		{Email: "alice@example.com", Username: "alice", Password: hashPassword("Alice12345"), Role: entity.RoleUser, IsVerified: true},
-		{Email: "bob@example.com", Username: "bob", Password: hashPassword("Bob12345"), Role: entity.RoleUser, IsVerified: true},
-		{Email: "charlie@example.com", Username: "charlie", Password: hashPassword("Charlie12345"), Role: entity.RoleUser, IsVerified: true},
-		{Email: "doni@example.com", Username: "doni", Password: hashPassword("Doni12345"), Role: entity.RoleUser, IsVerified: true},
-		{Email: "david@example.com", Username: "david", Password: hashPassword("David12345"), Role: entity.RoleUser, IsVerified: true},
-		{Email: "daniel@example.com", Username: "daniel", Password: hashPassword("Daniel12345"), Role: entity.RoleAdmin, IsVerified: true},
+		{Email: "alice@example.com", Password: hashPassword("Alice12345"), RoleId: entity.RoleUser, IsVerified: true},
+		{Email: "bob@example.com", Password: hashPassword("Bob12345"), RoleId: entity.RoleUser, IsVerified: true},
+		{Email: "charlie@example.com", Password: hashPassword("Charlie12345"), RoleId: entity.RoleAdmin, IsVerified: true},
+		{Email: "doni@example.com", Password: hashPassword("Doni12345"), RoleId: entity.RoleAdmin, IsVerified: true},
+		{Email: "david@example.com", Password: hashPassword("David12345"), RoleId: entity.RoleSuperAdmin, IsVerified: true},
+		{Email: "daniel@example.com", Password: hashPassword("Daniel12345"), RoleId: entity.RoleUser, IsVerified: true},
 	}
 
 	profiles := []*entity.Profile{
@@ -21,7 +22,6 @@ func Seed(db *gorm.DB) {
 		generateProfile(2, "Bob"),
 		generateProfile(3, "Charlie"),
 		generateProfile(4, "David"),
-		generateProfile(5, "Daniel"),
 	}
 	carts := []entity.Cart{
 		{UserId: 1},
@@ -36,10 +36,14 @@ func Seed(db *gorm.DB) {
 			PostalCode: "12950",
 			Phone:      "08772348585",
 			Detail:     "",
+			Location: &valueobject.Coordinate{
+				Latitude:  generateDecimalFromString("-6.230835326032342"),
+				Longitude: generateDecimalFromString("106.82413596846786"),
+			},
 			IsDefault:  false,
 			ProfileId:  1,
-			Province:   "Jawa Barat",
-			City:       "Bandung",
+			ProvinceId: 6,
+			CityId:     42,
 		},
 		{
 			Name:       "Alice",
@@ -47,10 +51,14 @@ func Seed(db *gorm.DB) {
 			PostalCode: "12950",
 			Phone:      "08772348585",
 			Detail:     "",
+			Location: &valueobject.Coordinate{
+				Latitude:  generateDecimalFromString("-6.894393363416537"),
+				Longitude: generateDecimalFromString("107.60773740044303"),
+			},
 			IsDefault:  false,
 			ProfileId:  1,
-			Province:   "Jawa Barat",
-			City:       "Kuningan",
+			ProvinceId: 9,
+			CityId:     64,
 		},
 		{
 			Name:       "Alice",
@@ -58,10 +66,14 @@ func Seed(db *gorm.DB) {
 			PostalCode: "60285",
 			Phone:      "08772348585",
 			Detail:     "",
+			Location: &valueobject.Coordinate{
+				Latitude:  generateDecimalFromString("-7.266614744067581"),
+				Longitude: generateDecimalFromString("112.77033130376155"),
+			},
 			IsDefault:  true,
 			ProfileId:  1,
-			Province:   "Jawa Barat",
-			City:       "Cirebon",
+			ProvinceId: 11,
+			CityId:     161,
 		},
 	}
 

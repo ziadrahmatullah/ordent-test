@@ -2,22 +2,25 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/ziadrahmatullah/ordent-test/apperror"
 	"github.com/ziadrahmatullah/ordent-test/appjwt"
 	"github.com/ziadrahmatullah/ordent-test/entity"
 	"github.com/ziadrahmatullah/ordent-test/hasher"
+	"github.com/ziadrahmatullah/ordent-test/imagehelper"
+	"github.com/ziadrahmatullah/ordent-test/mail"
 	"github.com/ziadrahmatullah/ordent-test/repository"
 	"github.com/ziadrahmatullah/ordent-test/transactor"
 	"github.com/ziadrahmatullah/ordent-test/valueobject"
 )
 
 type AuthUsecase interface {
-	Register(context.Context, *entity.User) (string, error)
+	Register(context.Context, *entity.User) error
 	Verify(context.Context, *entity.User, *entity.Profile) error
 	Login(context.Context, *entity.User) (*entity.User, error)
-	ForgotPassword(ctx context.Context, user *entity.User, tokenEntity *entity.ForgotPasswordToken) (token *entity.ForgotPasswordToken, err error)
+	ForgotPassword(context.Context, *entity.User, *entity.ForgotPasswordToken) error
 	ResetPassword(context.Context, *entity.User, *entity.ForgotPasswordToken) error
 }
 
@@ -27,8 +30,10 @@ type authUsecase struct {
 	profileRepo        repository.ProfileRepository
 	forgotPasswordRepo repository.ForgotPasswordRepository
 	cartRepo           repository.CartRepository
+	smtpGmail          mail.SmtpGmail
 	hash               hasher.Hasher
 	jwt                appjwt.Jwt
+	imageHelper        imagehelper.ImageHelper
 }
 
 func NewAuthUsecase(
@@ -37,8 +42,10 @@ func NewAuthUsecase(
 	profileRepo repository.ProfileRepository,
 	forgotPasswordRepo repository.ForgotPasswordRepository,
 	cartRepo repository.CartRepository,
+	smtpGmail mail.SmtpGmail,
 	hash hasher.Hasher,
 	jwt appjwt.Jwt,
+	imageHelper imagehelper.ImageHelper,
 ) AuthUsecase {
 	return &authUsecase{
 		manager:            manager,
@@ -46,38 +53,43 @@ func NewAuthUsecase(
 		profileRepo:        profileRepo,
 		forgotPasswordRepo: forgotPasswordRepo,
 		cartRepo:           cartRepo,
+		smtpGmail:          smtpGmail,
 		hash:               hash,
 		jwt:                jwt,
+		imageHelper:        imageHelper,
 	}
 }
 
-func (u *authUsecase) Register(ctx context.Context, user *entity.User) (newToken string, err error) {
+func (u *authUsecase) Register(ctx context.Context, user *entity.User) error {
 	emailQuery := valueobject.NewQuery().Condition("email", valueobject.Equal, user.Email)
 	fetchedUser, err := u.userRepo.FindOne(ctx, emailQuery)
 	if err != nil {
-		return "", err
+		return err
 	}
 	var token string
 	if fetchedUser != nil {
 		if fetchedUser.IsVerified {
-			return "", apperror.NewResourceAlreadyExistError("user", "email", user.Email)
+			return apperror.NewResourceAlreadyExistError("user", "email", user.Email)
 		}
+		token = fetchedUser.Token
 	} else {
 		hashedToken, err := u.hash.Hash(user.Email)
 		if err != nil {
-			return "", err
+			return err
 		}
 		token = string(hashedToken)
 		user.Token = token
 		_, err = u.userRepo.Create(ctx, user)
 		if err != nil {
-			return "", err
+			return err
 		}
 	}
+	link := fmt.Sprintf("verify/%d?token=%s", user.RoleId, token)
+	err = u.smtpGmail.SendEmail(link, user.Email, true)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return token, nil
+	return nil
 }
 
 func (u *authUsecase) Verify(ctx context.Context, user *entity.User, profile *entity.Profile) error {
@@ -110,14 +122,11 @@ func (u *authUsecase) Verify(ctx context.Context, user *entity.User, profile *en
 		if err != nil {
 			return err
 		}
-		if fetchedUser.Role == entity.RoleUser {
-			var cart entity.Cart
-			cart.UserId = updatedUser.Id
-			_, err = u.cartRepo.Create(c, &cart)
-			if err != nil {
-				return err
-			}
-			return nil
+		var cart entity.Cart
+		cart.UserId = updatedUser.Id
+		_, err = u.cartRepo.Create(c, &cart)
+		if err != nil {
+			return err
 		}
 		return nil
 	})
@@ -144,29 +153,34 @@ func (u *authUsecase) Login(ctx context.Context, user *entity.User) (*entity.Use
 	return fetchedUser, nil
 }
 
-func (u *authUsecase) ForgotPassword(ctx context.Context, user *entity.User, tokenEntity *entity.ForgotPasswordToken) (token *entity.ForgotPasswordToken, err error) {
+func (u *authUsecase) ForgotPassword(ctx context.Context, user *entity.User, tokenEntity *entity.ForgotPasswordToken) error {
 	emailQuery := valueobject.NewQuery().Condition("email", valueobject.Equal, user.Email)
 	fetchedUser, err := u.userRepo.FindOne(ctx, emailQuery)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if fetchedUser == nil {
-		return nil, apperror.NewResourceNotFoundError("user", "email", user.Email)
+		return apperror.NewResourceNotFoundError("user", "email", user.Email)
 	}
 	if !fetchedUser.IsVerified {
-		return nil, apperror.NewResourceNotFoundError("user", "email", user.Email)
+		return apperror.NewResourceNotFoundError("user", "email", user.Email)
 	}
 	hashedToken, err := u.hash.Hash(user.Email)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	tokenEntity.Token = string(hashedToken)
 	tokenEntity.UserId = fetchedUser.Id
 	tokenEntity, err = u.forgotPasswordRepo.Create(ctx, tokenEntity)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return tokenEntity, nil
+	tokenLink := fmt.Sprintf("forgot-password/apply?token=%s", tokenEntity.Token)
+	err = u.smtpGmail.SendEmail(tokenLink, fetchedUser.Email, false)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *authUsecase) ResetPassword(ctx context.Context, user *entity.User, tokenEntity *entity.ForgotPasswordToken) error {

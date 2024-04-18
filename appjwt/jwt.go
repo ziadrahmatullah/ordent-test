@@ -12,8 +12,8 @@ import (
 
 type CustomClaims struct {
 	jwt.RegisteredClaims
-	Id   uint        `json:"id"`
-	Role entity.Role `json:"role_id"`
+	Id     uint          `json:"id"`
+	RoleId entity.RoleId `json:"role_id"`
 }
 
 type Jwt interface {
@@ -47,8 +47,8 @@ func (j *jwtImpl) GenerateToken(user *entity.User) (string, error) {
 			Issuer:    appConfig.Name,
 			Subject:   userId,
 		},
-		Id:   user.Id,
-		Role: user.Role,
+		Id:     user.Id,
+		RoleId: user.RoleId,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -65,8 +65,8 @@ func (j *jwtImpl) ValidateToken(tokenString string) (*entity.User, error) {
 	}
 	if claims, ok := token.Claims.(*CustomClaims); ok {
 		user := &entity.User{
-			Id:   claims.Id,
-			Role: claims.Role,
+			Id:     claims.Id,
+			RoleId: claims.RoleId,
 		}
 		return user, nil
 	}

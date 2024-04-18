@@ -6,7 +6,9 @@ import (
 	"github.com/ziadrahmatullah/ordent-test/appvalidator"
 	"github.com/ziadrahmatullah/ordent-test/handler"
 	"github.com/ziadrahmatullah/ordent-test/hasher"
+	"github.com/ziadrahmatullah/ordent-test/imagehelper"
 	"github.com/ziadrahmatullah/ordent-test/logger"
+	"github.com/ziadrahmatullah/ordent-test/mail"
 	"github.com/ziadrahmatullah/ordent-test/repository"
 	"github.com/ziadrahmatullah/ordent-test/router"
 	"github.com/ziadrahmatullah/ordent-test/server"
@@ -29,6 +31,11 @@ func main() {
 	hash := hasher.NewHasher()
 	jwt := appjwt.NewJwt()
 	appvalidator.RegisterCustomValidator()
+	mail := mail.NewSmtpGmail()
+	imageHelper, err := imagehelper.NewImageHelper()
+	if err != nil {
+		logger.Log.Error(err)
+	}
 
 	userR := repository.NewUserRepository(db)
 	profileR := repository.NewProfileRepository(db)
@@ -37,7 +44,7 @@ func main() {
 	addressR := repository.NewAddressRepository(db)
 
 	userU := usecase.NewUserUsecase(userR, profileR, hash)
-	authU := usecase.NewAuthUsecase(manager, userR, profileR, forgotPassR, cartR, hash, jwt)
+	authU := usecase.NewAuthUsecase(manager, userR, profileR, forgotPassR, cartR, mail, hash, jwt, imageHelper)
 	addressU := usecase.NewAddressUsecase(addressR, manager)
 
 	userH := handler.NewUserHandler(userU)

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/ziadrahmatullah/ordent-test/apperror"
 	"github.com/ziadrahmatullah/ordent-test/dto"
 	"github.com/ziadrahmatullah/ordent-test/usecase"
@@ -26,17 +27,17 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 	user := request.ToUser()
-	token, err := h.usecase.Register(c.Request.Context(), user)
+	err := h.usecase.Register(c.Request.Context(), user)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, dto.TokenResponse{Token: token})
+	c.JSON(http.StatusOK, dto.Response{Message: "link sent"})
 }
 
 func (h *AuthHandler) Verify(c *gin.Context) {
 	var request dto.VerifyRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
+	if err := c.ShouldBindWith(&request, binding.Form); err != nil {
 		_ = c.Error(err)
 		return
 	}
@@ -52,6 +53,7 @@ func (h *AuthHandler) Verify(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
+
 	err = h.usecase.Verify(c.Request.Context(), user, profile)
 	if err != nil {
 		_ = c.Error(err)
@@ -83,12 +85,12 @@ func (h *AuthHandler) RequestForgotPassword(c *gin.Context) {
 	}
 	user := request.ToUser()
 	token := dto.ToForgotPasswordEntity()
-	token, err := h.usecase.ForgotPassword(c.Request.Context(), user, token)
+	err := h.usecase.ForgotPassword(c.Request.Context(), user, token)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, dto.TokenResponse{Token: token.Token})
+	c.JSON(http.StatusOK, dto.Response{Message: "link sent"})
 }
 
 func (h *AuthHandler) ApplyPassword(c *gin.Context) {
