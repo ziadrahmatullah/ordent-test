@@ -25,12 +25,12 @@ func (h *AddressHandler) CreateAddress(c *gin.Context) {
 		return
 	}
 	address := request.ToAddress()
-	err := h.usecase.CreateAddress(c.Request.Context(), address)
+	createdAddress, err := h.usecase.CreateAddress(c.Request.Context(), address)
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, dto.Response{Message: "create success"})
+	c.JSON(http.StatusOK, dto.Response{Data: dto.CreateAddressResponse{AddressId: createdAddress.Id}})
 }
 
 func (h *AddressHandler) GetAddress(c *gin.Context) {
@@ -48,9 +48,13 @@ func (h *AddressHandler) GetAddress(c *gin.Context) {
 		addressDto.PostalCode = address.PostalCode
 		addressDto.Phone = address.Phone
 		addressDto.Detail = address.Detail
-		addressDto.Province = address.Province
-		addressDto.City = address.City
+		addressDto.Province = address.Province.Name
+		addressDto.City = address.City.Name
 		addressDto.IsDefault = address.IsDefault
+		addressDto.CityId = address.CityId
+		addressDto.ProvinceId = address.ProvinceId
+		addressDto.Latitude = address.Location.Latitude.String()
+		addressDto.Longitude = address.Location.Longitude.String()
 		addressesDto = append(addressesDto, &addressDto)
 	}
 	c.JSON(http.StatusOK, dto.Response{Data: addressesDto})
@@ -103,4 +107,28 @@ func (h *AddressHandler) ChangeDefaultAddress(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, dto.Response{Message: "address default changed"})
+}
+
+func (h *AddressHandler) ValidateAddress(c *gin.Context) {
+	var request dto.ValidateAddressRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	coordinate, err := request.ToCoordinate()
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	isValid, err := h.usecase.ValidateCoordinate(c.Request.Context(), request.CityId, coordinate)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Data: dto.ValidateAddressResponse{IsValid: isValid},
+	})
 }

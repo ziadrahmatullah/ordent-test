@@ -42,10 +42,11 @@ func main() {
 	cartR := repository.NewCartRepository(db)
 	forgotPassR := repository.NewForgotPasswordRepository(db)
 	addressR := repository.NewAddressRepository(db)
+	shippingR := repository.NewShippingMethodRepository(db, client)
 
 	userU := usecase.NewUserUsecase(userR, profileR, hash)
 	authU := usecase.NewAuthUsecase(manager, userR, profileR, forgotPassR, cartR, mail, hash, jwt, imageHelper)
-	addressU := usecase.NewAddressUsecase(addressR, manager)
+	addressU := usecase.NewAddressUsecase(addressR, manager, shippingR)
 
 	userH := handler.NewUserHandler(userU)
 	authH := handler.NewAuthHandler(authU)

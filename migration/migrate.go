@@ -7,11 +7,26 @@ import (
 
 func Migrate(db *gorm.DB) {
 	u := &entity.User{}
-	p := &entity.Profile{}
-	fp := &entity.ForgotPasswordToken{}
-	c := &entity.Cart{}
+	pc := &entity.ProductCategory{}
+	p := &entity.Product{}
+	r := &entity.Role{}
+	profile := &entity.Profile{}
+	ftp := &entity.ForgotPasswordToken{}
+	pharmacy := &entity.Shop{}
+	pharmacyProduct := &entity.ShopProduct{}
+	pr := &entity.Province{}
+	ct := &entity.City{}
+	ors := &entity.OrderStatus{}
+	spm := &entity.ShippingMethod{}
 	a := &entity.Address{}
+	c := &entity.Cart{}
+	ci := &entity.CartItem{}
+	ts := &entity.StockRecord{}
+	po := &entity.ProductOrder{}
+	oi := &entity.OrderItem{}
+	ac := &entity.AdminContact{}
 
-	_ = db.Migrator().DropTable(u, p, fp, c, a)
-	_ = db.AutoMigrate(u, p, fp, c, a)
+	_ = db.Migrator().DropTable(u, pc, p, r, profile, ftp, pharmacy, pharmacyProduct, pr, ct, ors, spm, a, c, ci, ts, ac, po, oi)
+
+	_ = db.AutoMigrate(u, pc, p, r, profile, ftp, pharmacy, pharmacyProduct, pr, ct, ors, spm, a, c, ci, ts, ac, po, oi)
 }
