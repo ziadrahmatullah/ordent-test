@@ -10,14 +10,14 @@ type RegisterRequest struct {
 	Email string `binding:"required,email" json:"email"`
 }
 
-type TokenResponse struct {
-	Token string `json:"token"`
+type VerifyRequestUri struct {
+	Id uint `uri:"id" binding:"required,numeric"`
 }
 
 type VerifyRequest struct {
-	Name      string `binding:"required" json:"name"`
-	Birthdate string `binding:"required" json:"dob"`
-	Password  string `binding:"required" json:"password"`
+	Name      string `binding:"required" form:"name"`
+	Birthdate string `binding:"required" form:"dob"`
+	Password  string `binding:"required" form:"password"`
 }
 
 type LoginRequest struct {
@@ -41,7 +41,7 @@ func (r *RegisterRequest) ToUser() *entity.User {
 	return &entity.User{
 		Email:      r.Email,
 		IsVerified: false,
-		Role:       entity.RoleUser,
+		RoleId:     entity.RoleUser,
 	}
 }
 
