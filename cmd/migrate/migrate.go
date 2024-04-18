@@ -3,6 +3,9 @@ package main
 import (
 	"os"
 
+	"github.com/ziadrahmatullah/ordent-test/logger"
+	"github.com/ziadrahmatullah/ordent-test/migration"
+	"github.com/ziadrahmatullah/ordent-test/repository"
 )
 
 func main() {

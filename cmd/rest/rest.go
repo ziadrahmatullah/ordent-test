@@ -2,6 +2,12 @@ package main
 
 import (
 	"github.com/go-resty/resty/v2"
+	"github.com/ziadrahmatullah/ordent-test/handler"
+	"github.com/ziadrahmatullah/ordent-test/logger"
+	"github.com/ziadrahmatullah/ordent-test/repository"
+	"github.com/ziadrahmatullah/ordent-test/router"
+	"github.com/ziadrahmatullah/ordent-test/server"
+	"github.com/ziadrahmatullah/ordent-test/usecase"
 )
 
 func main() {

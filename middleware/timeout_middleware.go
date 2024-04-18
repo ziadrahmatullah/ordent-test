@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ziadrahmatullah/ordent-test/config"
 )
 
 func Timeout() gin.HandlerFunc {

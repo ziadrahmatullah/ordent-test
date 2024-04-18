@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ziadrahmatullah/ordent-test/config"
+	"github.com/ziadrahmatullah/ordent-test/logger"
 )
 
 func New(router http.Handler) *http.Server {

@@ -1,7 +1,6 @@
 package dto
 
-import (
-)
+import "github.com/ziadrahmatullah/ordent-test/valueobject"
 
 type UserQueryParamReq struct {
 	Email      *string `form:"email"`

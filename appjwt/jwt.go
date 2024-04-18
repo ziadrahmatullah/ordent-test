@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/ziadrahmatullah/ordent-test/config"
+	"github.com/ziadrahmatullah/ordent-test/entity"
 )
 
 type CustomClaims struct {

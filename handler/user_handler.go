@@ -4,6 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ziadrahmatullah/ordent-test/dto"
+	"github.com/ziadrahmatullah/ordent-test/entity"
+	"github.com/ziadrahmatullah/ordent-test/usecase"
 )
 
 type UserHandler struct {
@@ -37,4 +40,3 @@ func (h *UserHandler) GetAllUser(c *gin.Context) {
 		CurrentItem: &pageResult.CurrentItems,
 	})
 }
-

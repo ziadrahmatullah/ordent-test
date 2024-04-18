@@ -1,6 +1,7 @@
 package migration
 
 import (
+	"github.com/ziadrahmatullah/ordent-test/entity"
 	"gorm.io/gorm"
 )
 
