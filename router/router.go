@@ -12,6 +12,7 @@ import (
 
 type Handlers struct {
 	User *handler.UserHandler
+	Auth *handler.AuthHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -22,6 +23,13 @@ func New(handlers Handlers) http.Handler {
 	router.Use(middleware.Timeout())
 	router.Use(middleware.Logger())
 	router.Use(middleware.Error())
+
+	auth := router.Group("/auth")
+	auth.POST("/register", handlers.Auth.Register)
+	auth.POST("/verify", handlers.Auth.Verify)
+	auth.POST("/login", handlers.Auth.Login)
+	auth.POST("/forgot-password", handlers.Auth.RequestForgotPassword)
+	auth.PUT("/forgot-password", handlers.Auth.ApplyPassword)
 
 	user := router.Group("/users")
 	user.GET("", handlers.User.GetAllUser)
