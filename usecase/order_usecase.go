@@ -26,15 +26,15 @@ type OrderUsecase interface {
 }
 
 type orderUsecase struct {
-	manager          transactor.Manager
-	imageHelper      imagehelper.ImageHelper
-	cartRepo         repository.CartRepository
-	orderItemRepo    repository.OrderItemRepository
-	productOrderRepo repository.OrderRepository
-	cartItemRepo     repository.CartItemRepository
-	addressRepo      repository.AddressRepository
-	shopRepo         repository.ShopRepository
-	shopProductRepo  repository.ShopProductRepository
+	manager         transactor.Manager
+	imageHelper     imagehelper.ImageHelper
+	cartRepo        repository.CartRepository
+	orderItemRepo   repository.OrderItemRepository
+	orderRepo       repository.OrderRepository
+	cartItemRepo    repository.CartItemRepository
+	addressRepo     repository.AddressRepository
+	shopRepo        repository.ShopRepository
+	shopProductRepo repository.ShopProductRepository
 }
 
 func NewOrderUsecase(
@@ -137,13 +137,13 @@ func (u *orderUsecase) GetAvailableProduct(ctx context.Context) (decimal.Decimal
 func (u *orderUsecase) ListAllOrders(ctx context.Context, query *valueobject.Query) (*valueobject.PagedResult, error) {
 	userId := ctx.Value("user_id").(uint)
 	roleId := ctx.Value("role_id").(entity.RoleId)
-	return u.productOrderRepo.FindAllOrders(ctx, query, userId, roleId)
+	return u.orderRepo.FindAllOrders(ctx, query, userId, roleId)
 }
 
 func (u *orderUsecase) UploadPaymentProof(ctx context.Context, orderId uint) error {
 	userId := ctx.Value("user_id").(uint)
 	orderQuery := valueobject.NewQuery().Condition("id", valueobject.Equal, orderId)
-	fetchedOrder, err := u.productOrderRepo.FindOne(ctx, orderQuery)
+	fetchedOrder, err := u.orderRepo.FindOne(ctx, orderQuery)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func (u *orderUsecase) UploadPaymentProof(ctx context.Context, orderId uint) err
 	}
 	fetchedOrder.PaymentProof = proofUrl
 	fetchedOrder.OrderStatusId = uint(entity.WaitingForPaymentConfirmation)
-	_, err = u.productOrderRepo.Update(ctx, fetchedOrder)
+	_, err = u.orderRepo.Update(ctx, fetchedOrder)
 	if err != nil {
 		return err
 	}
@@ -184,7 +184,7 @@ func (u *orderUsecase) UploadPaymentProof(ctx context.Context, orderId uint) err
 func (u *orderUsecase) OrderDetail(ctx context.Context, orderId uint) (*entity.ProductOrder, []*entity.OrderItem, *entity.Address, error) {
 	userId := ctx.Value("user_id").(uint)
 	roleId := ctx.Value("role_id").(entity.RoleId)
-	fetchedOrder, err := u.productOrderRepo.FindOrderDetail(ctx, orderId, userId, roleId)
+	fetchedOrder, err := u.orderRepo.FindOrderDetail(ctx, orderId, userId, roleId)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -210,7 +210,7 @@ func (u *orderUsecase) OrderDetail(ctx context.Context, orderId uint) (*entity.P
 func (u *orderUsecase) UserUpdateOrderStatus(ctx context.Context, order *entity.ProductOrder) error {
 	userId := ctx.Value("user_id").(uint)
 	orderQuery := valueobject.NewQuery().Condition("id", valueobject.Equal, order.Id)
-	fetchedOrder, err := u.productOrderRepo.FindOne(ctx, orderQuery)
+	fetchedOrder, err := u.orderRepo.FindOne(ctx, orderQuery)
 	if err != nil {
 		return err
 	}
@@ -232,7 +232,7 @@ func (u *orderUsecase) UserUpdateOrderStatus(ctx context.Context, order *entity.
 		}
 		fetchedOrder.OrderStatusId = uint(entity.OrderConfirmed)
 	}
-	_, err = u.productOrderRepo.Update(ctx, fetchedOrder)
+	_, err = u.orderRepo.Update(ctx, fetchedOrder)
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func (u *orderUsecase) AdminUpdateOrderStatus(ctx context.Context, order *entity
 	}
 	err := u.manager.Run(ctx, func(c context.Context) error {
 		orderQuery := valueobject.NewQuery().Condition("id", valueobject.Equal, order.Id).Lock()
-		fetchedOrder, err := u.productOrderRepo.FindOne(c, orderQuery)
+		fetchedOrder, err := u.orderRepo.FindOne(c, orderQuery)
 		if err != nil {
 			return err
 		}
@@ -306,7 +306,7 @@ func (u *orderUsecase) AdminUpdateOrderStatus(ctx context.Context, order *entity
 			}
 			fetchedOrder.OrderStatusId = uint(entity.Canceled)
 		}
-		_, err = u.productOrderRepo.Update(c, fetchedOrder)
+		_, err = u.orderRepo.Update(c, fetchedOrder)
 		if err != nil {
 			return err
 		}
