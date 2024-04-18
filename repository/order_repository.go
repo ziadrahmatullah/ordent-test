@@ -45,7 +45,6 @@ func (r *orderRepository) FindAllOrders(ctx context.Context, query *valueobject.
 		if orderStatus != nil {
 			db.Where("order_status_id = ?", orderStatus)
 		}
-
 		switch roleId {
 		case entity.RoleUser:
 			db.Where("profile_id = ?", userId)
