@@ -49,7 +49,7 @@ require (
 	github.com/twpayne/go-geom v1.5.4
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.22.0
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect

@@ -138,7 +138,7 @@ func ImportShop() []*entity.Shop {
 	var p []*shop
 	var shops []*entity.Shop
 
-	data, err := os.ReadFile("./migration/data/shops.json")
+	data, err := os.ReadFile("./migration/data/pharmacies.json")
 	if err != nil {
 		logger.Log.Error(err)
 	}
@@ -156,11 +156,11 @@ func ImportShop() []*entity.Shop {
 				Latitude:  decimal.NewFromFloat(p2.Latitude),
 				Longitude: decimal.NewFromFloat(p2.Longitude),
 			},
-			StartTime:               time.Date(1, 1, 1, 10, 0, 0, 0, time.Local),
-			EndTime:                 time.Date(1, 1, 1, 23, 59, 0, 0, time.Local),
-			OperationalDay:          "Monday,Tuesday,Wednesday,Saturday",
-			PharmacistLicenseNumber: "9999-1010-2020-0101",
-			PharmacistPhoneNumber:   "089654749370",
+			StartTime:         time.Date(1, 1, 1, 10, 0, 0, 0, time.Local),
+			EndTime:           time.Date(1, 1, 1, 23, 59, 0, 0, time.Local),
+			OperationalDay:    "Monday,Tuesday,Wednesday,Saturday",
+			ShopLicenseNumber: "9999-1010-2020-0101",
+			ShopPhoneNumber:   "089654749370",
 		})
 	}
 

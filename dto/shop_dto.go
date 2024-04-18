@@ -58,11 +58,11 @@ func (r *ShopReq) ToModel() (*entity.Shop, error) {
 			Latitude:  latitude,
 			Longitude: longitude,
 		},
-		StartTime:               startTime,
-		EndTime:                 endTime,
-		OperationalDay:          operationalDayString,
-		PharmacistLicenseNumber: r.PharmacistLicenseNumber,
-		PharmacistPhoneNumber:   r.PharmacistPhoneNumber,
+		StartTime:         startTime,
+		EndTime:           endTime,
+		OperationalDay:    operationalDayString,
+		ShopLicenseNumber: r.PharmacistLicenseNumber,
+		ShopPhoneNumber:   r.PharmacistPhoneNumber,
 	}, nil
 }
 
@@ -102,8 +102,8 @@ func NewShopRes(p *entity.Shop) *ShopRes {
 		StartTime:               p.StartTime.Format("15:04"),
 		EndTime:                 p.EndTime.Format("15:04"),
 		OperationalDay:          operationalDay,
-		PharmacistLicenseNumber: p.PharmacistLicenseNumber,
-		PharmacistPhoneNumber:   p.PharmacistPhoneNumber,
+		PharmacistLicenseNumber: p.ShopLicenseNumber,
+		PharmacistPhoneNumber:   p.ShopPhoneNumber,
 		Products:                productsTemp}
 }
 
