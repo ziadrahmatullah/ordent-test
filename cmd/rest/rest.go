@@ -52,6 +52,7 @@ func main() {
 	cartItemR := repository.NewCartItemRepository(db)
 	orderR := repository.NewOrderRepository(db)
 	orderItemR := repository.NewOrderItemRepository(db)
+	stockRecordR := repository.NewStockRecordRepository(db)
 
 	userU := usecase.NewUserUsecase(userR, profileR, hash)
 	authU := usecase.NewAuthUsecase(manager, userR, profileR, forgotPassR, cartR, mail, hash, jwt, imageHelper)
@@ -60,6 +61,8 @@ func main() {
 	shopU := usecase.NewShopUsecase(shopR, provinceR, cityR)
 	cartU := usecase.NewCartUsecase(manager, cartR, cartItemR, productR, shopProductR)
 	orderU := usecase.NewOrderUsecase(manager, imageHelper, cartR, orderItemR, orderR, cartItemR, addressR, shopR, shopProductR)
+	shippingU := usecase.NewShippingMethodUsecase(addressR, shippingR, shopR, orderU)
+	stockRecordU := usecase.NewStockRecordUsecase(stockRecordR, shopProductR, manager)
 
 	userH := handler.NewUserHandler(userU)
 	authH := handler.NewAuthHandler(authU)
@@ -68,15 +71,19 @@ func main() {
 	shopH := handler.NewShopHandler(shopU)
 	cartH := handler.NewCartHandler(cartU)
 	orderH := handler.NewOrderHandler(orderU)
+	shippingH := handler.NewShippingMethodHandler(shippingU)
+	stockRecordH := handler.NewStockRecordHandler(stockRecordU)
 
 	handlers := router.Handlers{
-		User:    userH,
-		Auth:    authH,
-		Address: addressH,
-		Product: productH,
-		Shop:    shopH,
-		Cart:    cartH,
-		Order:   orderH,
+		User:           userH,
+		Auth:           authH,
+		Address:        addressH,
+		Product:        productH,
+		Shop:           shopH,
+		Cart:           cartH,
+		Order:          orderH,
+		ShippingMethod: shippingH,
+		StockRecord:    stockRecordH,
 	}
 
 	r := router.New(handlers)

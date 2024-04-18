@@ -12,14 +12,16 @@ import (
 )
 
 type Handlers struct {
-	User        *handler.UserHandler
-	Auth        *handler.AuthHandler
-	Address     *handler.AddressHandler
-	Product     *handler.ProductHandler
-	Shop        *handler.ShopHandler
-	ShopProduct *handler.ShopProductHandler
-	Cart        *handler.CartHandler
-	Order       *handler.OrderHandler
+	User           *handler.UserHandler
+	Auth           *handler.AuthHandler
+	Address        *handler.AddressHandler
+	Product        *handler.ProductHandler
+	Shop           *handler.ShopHandler
+	ShopProduct    *handler.ShopProductHandler
+	Cart           *handler.CartHandler
+	ShippingMethod *handler.ShippingMethodHandler
+	Order          *handler.OrderHandler
+	StockRecord    *handler.StockRecordHandler
 }
 
 func New(handlers Handlers) http.Handler {
@@ -78,6 +80,8 @@ func New(handlers Handlers) http.Handler {
 	cart.PATCH("/check/:id", middleware.Auth(entity.RoleUser), handlers.Cart.CheckItem)
 	cart.PUT("/check-all", middleware.Auth(entity.RoleUser), handlers.Cart.CheckAllItem)
 
+	router.GET("/shipping-method/:id", middleware.Auth(entity.RoleUser), handlers.ShippingMethod.GetShippingMethod)
+
 	order := router.Group("/order")
 	order.POST("", middleware.Auth(entity.RoleUser), handlers.Order.CreateOrder)
 	order.GET("", middleware.Auth(entity.RoleUser, entity.RoleAdmin, entity.RoleSuperAdmin), handlers.Order.OrderHistory)
@@ -86,6 +90,10 @@ func New(handlers Handlers) http.Handler {
 	order.POST("/:id/upload-proof", middleware.Auth(entity.RoleUser), middleware.ImageUploadMiddleware(), handlers.Order.UploadPaymentProof)
 	order.PATCH("/:id/status-admin", middleware.Auth(entity.RoleAdmin), handlers.Order.AdminUpdateOrderStatus)
 	order.PATCH("/:id/status-user", middleware.Auth(entity.RoleUser), handlers.Order.UserUpdateOrderStatus)
+
+	stockRecord := router.Group("/stock-records")
+	stockRecord.GET("", middleware.Auth(entity.RoleAdmin), handlers.StockRecord.GetAllStockRecord)
+	stockRecord.POST("", middleware.Auth(entity.RoleAdmin), handlers.StockRecord.PostStockRecord)
 
 	return router
 }

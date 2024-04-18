@@ -28,3 +28,17 @@ func GenerateRandomString(length int) string {
 	}
 	return string(b)
 }
+
+func RemoveDuplicates(arr []uint) []uint {
+	seen := make(map[uint]bool)
+	result := []uint{}
+
+	for _, num := range arr {
+		if !seen[num] {
+			seen[num] = true
+			result = append(result, num)
+		}
+	}
+
+	return result
+}
