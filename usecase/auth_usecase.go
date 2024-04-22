@@ -13,6 +13,7 @@ import (
 	"github.com/ziadrahmatullah/ordent-test/mail"
 	"github.com/ziadrahmatullah/ordent-test/repository"
 	"github.com/ziadrahmatullah/ordent-test/transactor"
+	"github.com/ziadrahmatullah/ordent-test/util"
 	"github.com/ziadrahmatullah/ordent-test/valueobject"
 )
 
@@ -73,11 +74,7 @@ func (u *authUsecase) Register(ctx context.Context, user *entity.User) error {
 		}
 		token = fetchedUser.Token
 	} else {
-		hashedToken, err := u.hash.Hash(user.Email)
-		if err != nil {
-			return err
-		}
-		token = string(hashedToken)
+		token = util.GenerateRandomString(8)
 		user.Token = token
 		_, err = u.userRepo.Create(ctx, user)
 		if err != nil {
@@ -165,11 +162,7 @@ func (u *authUsecase) ForgotPassword(ctx context.Context, user *entity.User, tok
 	if !fetchedUser.IsVerified {
 		return apperror.NewResourceNotFoundError("user", "email", user.Email)
 	}
-	hashedToken, err := u.hash.Hash(user.Email)
-	if err != nil {
-		return err
-	}
-	tokenEntity.Token = string(hashedToken)
+	tokenEntity.Token = util.GenerateRandomString(8)
 	tokenEntity.UserId = fetchedUser.Id
 	tokenEntity, err = u.forgotPasswordRepo.Create(ctx, tokenEntity)
 	if err != nil {

@@ -86,6 +86,6 @@ func (r *smtpGmail) SendEmailTest(token, to string, isVerify bool) error {
 		subject, content = emailForgotPasswordContent(link)
 	}
 	message := fmt.Sprintf("Subject: %s\r\n\r\n%s", subject, content)
-	smtpAuth := smtp.PlainAuth("", "", "", "localhost")
+	smtpAuth := smtp.PlainAuth("", "example@gmail.com", "1234", "localhost")
 	return smtp.SendMail(smtpTestServer, smtpAuth, r.address, receiver, []byte(message))
 }

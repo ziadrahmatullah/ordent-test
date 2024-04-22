@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/ziadrahmatullah/ordent-test/apperror"
 	"github.com/ziadrahmatullah/ordent-test/dto"
 	"github.com/ziadrahmatullah/ordent-test/usecase"
@@ -37,7 +36,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 func (h *AuthHandler) Verify(c *gin.Context) {
 	var request dto.VerifyRequest
-	if err := c.ShouldBindWith(&request, binding.Form); err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		_ = c.Error(err)
 		return
 	}

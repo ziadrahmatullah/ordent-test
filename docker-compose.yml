@@ -11,7 +11,7 @@ services:
     environment:
       REST_HOST: rest
       DB_HOST: database
-      DB_PORT: 5432
+      DB_PORT: ${DB_PORT}
     networks:
       ecommerce_network:
     depends_on:
@@ -31,23 +31,24 @@ services:
     environment:
       REST_HOST: rest_dev
       DB_HOST: database
-      DB_PORT: 5432
+      DB_PORT: ${DB_PORT}
     networks:
       ecommerce_network:
-    depends_on:
+    depends_on:    
       database:
         condition: service_healthy
     links:
       - database
     volumes:
       - ./:/app
+    
 
 
   database:
     image: postgis/postgis:16-3.4-alpine
     container_name: ecommerce_db_postgres
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:${DB_PORT}"
     environment:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_USER: ${DB_USER}
@@ -86,7 +87,7 @@ services:
       - .env
     environment:
       DB_HOST: database
-      DB_PORT: 5432
+      DB_PORT: ${DB_PORT}
     depends_on:
       database:
         condition: service_healthy

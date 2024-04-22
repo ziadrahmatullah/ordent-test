@@ -15,9 +15,9 @@ type VerifyRequestUri struct {
 }
 
 type VerifyRequest struct {
-	Name      string `binding:"required" form:"name"`
-	Birthdate string `binding:"required" form:"dob"`
-	Password  string `binding:"required" form:"password"`
+	Name      string `binding:"required" json:"name"`
+	Birthdate string `binding:"required" json:"dob"`
+	Password  string `binding:"required" json:"password"`
 }
 
 type LoginRequest struct {
